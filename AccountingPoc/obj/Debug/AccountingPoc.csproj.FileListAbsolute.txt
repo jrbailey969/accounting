@@ -1,0 +1,5 @@
+C:\TestProjects\AccountingPoc\bin\Debug\AccountingPoc.exe.config
+C:\TestProjects\AccountingPoc\bin\Debug\AccountingPoc.exe
+C:\TestProjects\AccountingPoc\bin\Debug\AccountingPoc.pdb
+C:\TestProjects\AccountingPoc\obj\Debug\AccountingPoc.exe
+C:\TestProjects\AccountingPoc\obj\Debug\AccountingPoc.pdb
