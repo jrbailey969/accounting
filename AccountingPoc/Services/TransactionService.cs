@@ -30,11 +30,16 @@ namespace AccountingPoc.Services
             ValidateBalanceAdjustments(actions);
             foreach(TransactionAction action in actions)
             {
-                ProcessAction(action, transactionId);
+                ProcessLedgerEntry(action, transactionId);
+            }
+
+            foreach (TransactionAction action in actions)
+            {
+                ProcessLedgerEntryActions(action, transactionId);
             }
         }
 
-        public void VoidLedgerEntry(LedgerEntry entry)
+        public void VoidLedgerEntry(LedgerEntry entry, DateTime accountingDate)
         {
             var transactionActions = new List<TransactionAction>();
 
@@ -57,26 +62,10 @@ namespace AccountingPoc.Services
                 transactionAction.Actions.Add(new TransactionAction.AdjustmentAction
                 {
                     LedgerEntryTransType = Enumerations.LedgerEntryTransType.Amount,
-                    Amount = amountTotal * -1
+                    Amount = amountTotal * -1,
+                    AccountingDate = accountingDate
                 });
             }
-
-            //decimal balanceTotal = (from t in entryTransactions
-            //                       where t.LedgerEntryTransTypeId == (int)Enumerations.LedgerEntryTransType.Balance
-            //                       select t)
-            //                    .DefaultIfEmpty()
-            //                    .Sum(a => a == null ? 0 : a.Balance.HasValue ? a.Balance.Value : 0);
-
-            //if (balanceTotal != 0)
-            //{
-            //    transactionAction.Actions.Add(new TransactionAction.AdjustmentAction
-            //    {
-            //        LedgerEntryTransType = Enumerations.LedgerEntryTransType.Balance,
-            //        Amount = balanceTotal * -1
-            //    });
-            //}
-
-
 
             // Get the associated balance trans for the related entities and negate them
             entryTransactions
@@ -93,7 +82,8 @@ namespace AccountingPoc.Services
                     {
                         LedgerEntryTransType = Enumerations.LedgerEntryTransType.Balance,
                         Amount = t.Balance.Value * -1,
-                        RelatedLedgerEntry = relatedEntry
+                        RelatedLedgerEntry = relatedEntry,
+                        AccountingDate = accountingDate
                     });
 
 
@@ -106,7 +96,8 @@ namespace AccountingPoc.Services
                             {
                                 LedgerEntryTransType = Enumerations.LedgerEntryTransType.Balance,
                                 Amount = t.Balance.Value * -1,
-                                RelatedLedgerEntry = entry
+                                RelatedLedgerEntry = entry,
+                                AccountingDate = accountingDate
                             }
                         }
                     };
@@ -120,53 +111,62 @@ namespace AccountingPoc.Services
 
         #region Private Methods
 
-        private void ProcessAction(TransactionAction action, int transactionId)
+        private void ProcessLedgerEntry(TransactionAction action, int transactionId)
         {
             LedgerEntry entry;
             List<LedgerEntryTrans> entryTransactions;
-            bool isNewEntry = false;
+
             if (action.LedgerEntry.Id == 0)
             {
-                isNewEntry = true;
                 entry = action.LedgerEntry;
                 entry.Id = GetNextLedgerEntryId();
                 entry.Balance = entry.Amount;
                 entryTransactions = new List<LedgerEntryTrans>();
-                action.Actions.Add(
+                action.Actions.Insert(0,
                     new TransactionAction.AdjustmentAction
                     {
                         LedgerEntryTransType = Enumerations.LedgerEntryTransType.Amount,
                         Amount = entry.Amount,
+                        AccountingDate = entry.AccountingDate
                     }
                     );
-            }
-            else
-            {
-                entry = _ledgerEntryRepo.GetById(action.LedgerEntry.Id);
-                entryTransactions = _ledgerEntryTransRepo.GetByLedgerEntryId(entry.Id);
-            }
-
-            if (isNewEntry)
-            {
                 _ledgerEntryRepo.Add(entry);
             }
+        }
 
+        private void ProcessLedgerEntryActions(TransactionAction action, int transactionId)
+        {
+            LedgerEntry entry = _ledgerEntryRepo.GetById(action.LedgerEntry.Id);
+            List<LedgerEntryTrans> entryTransactions = _ledgerEntryTransRepo.GetByLedgerEntryId(entry.Id);
 
             action.Actions.ForEach(a => {
-                var ledgerEntryTrans = new LedgerEntryTrans
+                LedgerEntryTrans previousTrans = null;
+                if (a.LedgerEntryTransType == Enumerations.LedgerEntryTransType.Amount)
                 {
-                    Id = GetNextLedgerEntryTransId(),
-                    TransactionId = transactionId,
-                    AccountingDate = entry.AccountingDate,
-                    LedgerEntryId = entry.Id,
-                    LedgerEntryTransTypeId = (int)a.LedgerEntryTransType,
-                    Amount = a.LedgerEntryTransType == Enumerations.LedgerEntryTransType.Amount ? (decimal?)a.Amount : null,
-                    Balance = a.LedgerEntryTransType == Enumerations.LedgerEntryTransType.Balance ? (decimal?)a.Amount : null,
-                    TypeQualifier = entry.TypeQualifier,
-                    RelatedLedgerEntryId = a.LedgerEntryTransType == Enumerations.LedgerEntryTransType.Balance ? (int?)a.RelatedLedgerEntry.Id : null
-                };
-                entryTransactions.Add(ledgerEntryTrans);
-                _ledgerEntryTransRepo.Add(ledgerEntryTrans);
+                    previousTrans = GetLastEntryTransByType(entryTransactions, a.LedgerEntryTransType, a.AccountingDate);
+                }
+
+                if (previousTrans == null)
+                {
+                    var ledgerEntryTrans = new LedgerEntryTrans
+                    {
+                        Id = GetNextLedgerEntryTransId(),
+                        TransactionId = transactionId,
+                        AccountingDate = a.AccountingDate,
+                        LedgerEntryId = entry.Id,
+                        LedgerEntryTransTypeId = (int)a.LedgerEntryTransType,
+                        Amount = a.LedgerEntryTransType == Enumerations.LedgerEntryTransType.Amount ? (decimal?)a.Amount : null,
+                        Balance = a.LedgerEntryTransType == Enumerations.LedgerEntryTransType.Balance ? (decimal?)a.Amount : null,
+                        TypeQualifier = entry.TypeQualifier,
+                        RelatedLedgerEntryId = a.LedgerEntryTransType == Enumerations.LedgerEntryTransType.Balance ? (int?)a.RelatedLedgerEntry.Id : null
+                    };
+                    entryTransactions.Add(ledgerEntryTrans);
+                    _ledgerEntryTransRepo.Add(ledgerEntryTrans);
+                }
+                else
+                {
+                    previousTrans.Amount += a.Amount;
+                }
             });
 
             // Recalculate entry amount based on entry transactions of type amount
@@ -239,6 +239,14 @@ namespace AccountingPoc.Services
         private int GetNextLedgerEntryTransId()
         {
             return _ledgerEntryTransRepo.GetAll().DefaultIfEmpty().Max(t => t == null ? 0 : t.Id) + 1;
+        }
+
+        private LedgerEntryTrans GetLastEntryTransByType(List<LedgerEntryTrans> transactions, Enumerations.LedgerEntryTransType transType, DateTime? dateFilter)
+        {
+            return transactions
+                .OrderByDescending(t => t.Id)
+                .Where(t => !dateFilter.HasValue || t.AccountingDate.Date == dateFilter.Value.Date)
+                .FirstOrDefault(t => t.LedgerEntryTransTypeId == (int)transType);
         }
 
         #endregion

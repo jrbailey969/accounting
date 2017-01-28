@@ -3,3 +3,9 @@ C:\TestProjects\AccountingPoc\bin\Debug\AccountingPoc.exe
 C:\TestProjects\AccountingPoc\bin\Debug\AccountingPoc.pdb
 C:\TestProjects\AccountingPoc\obj\Debug\AccountingPoc.exe
 C:\TestProjects\AccountingPoc\obj\Debug\AccountingPoc.pdb
+C:\code\accounting\AccountingPoc\bin\Debug\AccountingPoc.exe.config
+C:\code\accounting\AccountingPoc\obj\Debug\AccountingPoc.exe
+C:\code\accounting\AccountingPoc\obj\Debug\AccountingPoc.pdb
+C:\code\accounting\AccountingPoc\obj\Debug\AccountingPoc.csprojResolveAssemblyReference.cache
+C:\code\accounting\AccountingPoc\bin\Debug\AccountingPoc.exe
+C:\code\accounting\AccountingPoc\bin\Debug\AccountingPoc.pdb

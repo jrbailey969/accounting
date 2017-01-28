@@ -23,6 +23,7 @@ namespace AccountingPoc.Data
             public Enumerations.LedgerEntryTransType LedgerEntryTransType { get; set; }
             public decimal Amount { get; set; }
             public LedgerEntry RelatedLedgerEntry { get; set; }
+            public DateTime AccountingDate { get; set; }
         }
         #endregion
     }

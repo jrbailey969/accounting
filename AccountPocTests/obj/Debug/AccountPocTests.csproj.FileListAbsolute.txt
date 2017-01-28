@@ -6,3 +6,11 @@ C:\TestProjects\AccountPocTests\bin\Debug\AccountingPoc.pdb
 C:\TestProjects\AccountPocTests\obj\Debug\AccountPocTests.csprojResolveAssemblyReference.cache
 C:\TestProjects\AccountPocTests\obj\Debug\AccountPocTests.dll
 C:\TestProjects\AccountPocTests\obj\Debug\AccountPocTests.pdb
+C:\code\accounting\AccountPocTests\obj\Debug\AccountPocTests.csprojResolveAssemblyReference.cache
+C:\code\accounting\AccountPocTests\obj\Debug\AccountPocTests.dll
+C:\code\accounting\AccountPocTests\obj\Debug\AccountPocTests.pdb
+C:\code\accounting\AccountPocTests\bin\Debug\AccountPocTests.dll
+C:\code\accounting\AccountPocTests\bin\Debug\AccountPocTests.pdb
+C:\code\accounting\AccountPocTests\bin\Debug\AccountingPoc.exe
+C:\code\accounting\AccountPocTests\bin\Debug\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll
+C:\code\accounting\AccountPocTests\bin\Debug\AccountingPoc.pdb
