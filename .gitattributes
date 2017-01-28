@@ -1,0 +1,64 @@
+# Auto detect text files and perform LF normalization
+* -text
+
+# Custom for Visual Studio
+*.cs text diff=csharp
+*.cshtml text
+*.sln text eol=crlf merge=union 
+*.csproj text merge=union
+*.vbproj text merge=union
+*.fsproj text merge=union
+*.dbproj text merge=union
+
+# Documents
+*.doc	 diff=astextplain
+*.DOC	 diff=astextplain
+*.docx diff=astextplain
+*.DOCX diff=astextplain
+*.dot  diff=astextplain
+*.DOT  diff=astextplain
+*.pdf  diff=astextplain
+*.PDF	 diff=astextplain
+*.rtf	 diff=astextplain
+*.RTF	 diff=astextplain
+
+# NuGet
+#*.pp -text
+
+# General Web
+*.php text
+*.css text
+*.js text
+*.htm text
+*.html text
+*.xml text
+*.txt text
+*.ini text
+*.inc text
+.htaccess text
+
+# Other Files
+*.transform -text
+readme.txt -text
+*.ps1 -text
+
+# Media Files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg text
+*.mov binary
+*.mp4 binary
+*.mp3 binary
+*.flv binary
+*.swf -crlf -diff -merge
+*.swc -crlf -diff -merge
+*.fla -crlf -diff -merge
+
+# Other Files
+*.gz binary
+*.zip binary
+*.7z binary
+*.ttf binary
